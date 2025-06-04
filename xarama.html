@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <link rel="stylesheet" href="assets/css/custom.css" />
+    <!--css import ifadesi link tagı ile import ediliyor-->
+  </head>
+  <body>
+    <a class="custom-a" href="/">PDF ekle</a>
+    <div style="height: 20px"></div>
+    <form method="post">
+      <input type="text" name="arama" id="arama" />
+      <input type="button" value="Click me" onclick="gonder()" />
+      <!--onclick fonksiyonu gönder ile fonksiyon haline geldi-->
+    </form>
+    <footer>
+      <!--axios kütüphanesini kullanıcıya import ettik-->
+      <script src="assets/js/axios.min.js"></script>
+      <!--back end'e sorgu yapıp cevap alabildiğimiz js kütüphanesi, frond end ve back end arasında körü görevi görür. ajax-axios aynı işi yapar-->
+      <script>
+        function gonder() {
+          var kelime = document.getElementById("arama").value; // dokümandan ID'ye göre eleman çekip değerini elde etme
+          console.log(kelime);
+          //get ve post istemlerini karşılayan fonksiyon
+          axios
+            .post("/bul", {
+              arama: kelime,
+            })
+            .then(function (response) {
+              //console.log(response);
+              var datali = document.getElementsByName("data-li");
+              var count = datali.length;
+              if(count > 0) {
+                for(j=count-1; j>=0; j--){
+                  datali[j].remove();
+                  if (datali.length==0) {
+                    //aranılan kelimenin bulunduğu pdf'i element kutucuklarına ismini yazdırma
+                    for (i = 0; i < response.data.length; i++) {
+                      console.log(response.data[i].pdfFile);
+                      const newNode = document.createElement("li");
+                      newNode.setAttribute("name","data-li");
+                      const newAtag = document.createElement("a");
+                      newAtag.setAttribute("href","/uploads/" + response.data[i].pdfFile + "");
+                      newAtag.setAttribute("target", "_blank");
+                      
+                      newAtag.innerHTML = response.data[i].pdfFile;
+                      newNode.appendChild(newAtag); //a taganı çocuk elementi olarak li'nin içerisine ekleme
+                      document.body.appendChild(newNode);
+                    }
+                  }
+                }
+              } else {
+                //aranılan kelimenin bulunduğu pdf'i element kutucuklarına ismini yazdırma
+                for (i = 0; i < response.data.length; i++) {
+                  console.log(response.data[i].pdfFile);
+                  const newNode = document.createElement("li");
+                  newNode.setAttribute("name","data-li");
+                  const newAtag = document.createElement("a");
+                  newAtag.setAttribute("href","/uploads/" + response.data[i].pdfFile + "");
+                  newAtag.setAttribute("target", "_blank");
+                  
+                  newAtag.innerHTML = response.data[i].pdfFile;
+                  newNode.appendChild(newAtag); //a taganı çocuk elementi olarak li'nin içerisine ekleme
+                  document.body.appendChild(newNode);
+                }
+              }
+            })
+            .catch(function (error) {
+              console.log(error);
+            });
+        }
+      </script>
+    </footer>
+  </body>
+</html>

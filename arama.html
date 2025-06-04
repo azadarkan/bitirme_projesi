@@ -1,0 +1,166 @@
+
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="author" content="colorlib.com">
+    <link href="https://fonts.googleapis.com/css?family=Montserrat:500" rel="stylesheet" />
+    <link href="assets/css/style.css" rel="stylesheet" />
+    <link href="assets/css/bootstrap.min.css" rel="stylesheet" />
+  <meta name="robots" content="noindex, follow">
+    <style>
+      input:-internal-autofill-selected {
+    appearance: menulist-button;
+    background-image: url("../images/search-bg.jpg") !important;
+    background-color: transparent !important;
+    color: fieldtext !important;
+}
+    </style>
+
+</head>
+  <body>
+    <header class="py-3 mb-4 border-bottom">
+      <div class="container d-flex flex-wrap justify-content-center">
+        <a href="/" class="d-flex align-items-center mb-3 mb-lg-0 me-lg-auto text-dark text-decoration-none">
+          <svg class="bi me-2" width="40" height="32"><use xlink:href="#bootstrap"></use></svg>
+          <span class="fs-4">PDF yükle</span>
+        </a>
+      </div>
+    </header>
+    <div class="s129">
+      <form>
+        <div class="inner-form">
+          <div class="input-field">
+            <button class="btn-search" type="button" onclick="gonder()">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"></path>
+              </svg>
+            </button>
+            <input id="arama" type="text" placeholder="Hangi kelimeyi arıyorsunuz?" />
+          </div>
+        </div>
+      </form>
+    </div>
+    <div>
+      <div id="list-ana" class="list-group">
+        <!--Burası response'tan gelen dataya göre dolacak-->
+      </div>
+    </div>
+    <footer>
+            <!--axios kütüphanesini kullanıcıya import ettik-->
+            <script src="assets/js/axios.min.js"></script>
+            <!--back end'e sorgu yapıp cevap alabildiğimiz js kütüphanesi, frond end ve back end arasında körü görevi görür. ajax-axios aynı işi yapar-->
+        <script>
+            function gonder() {
+              var kelime = document.getElementById("arama").value; // dokümandan ID'ye göre eleman çekip değerini elde etme
+              console.log(kelime);
+              //get ve post istemlerini karşılayan fonksiyon
+              axios.post("/bul", {arama: kelime,})
+              .then(function (response) {
+                  //console.log(response);
+                  var datali = document.getElementsByName("data-li");
+                  var listana = document.getElementById("list-ana");
+                  var count = datali.length;
+                  if(count > 0) {
+                    for(j=count-1; j>=0; j--){
+                      datali[j].remove();
+                      if (datali.length==0) {
+                        //aranılan kelimenin bulunduğu pdf'i element kutucuklarına ismini yazdırma
+                        for (i = 0; i < response.data.length; i++) {
+                          console.log(response.data[i].pdfFile);
+                          /*const newNode = document.createElement("li");
+                          newNode.setAttribute("name","data-li");
+                          const newAtag = document.createElement("a");
+                          newAtag.setAttribute("href","/uploads/" + response.data[i].pdfFile + "");
+                          newAtag.setAttribute("target", "_blank");
+                          
+                          newAtag.innerHTML = response.data[i].pdfFile;
+                          newNode.appendChild(newAtag); //a taganı çocuk elementi olarak li'nin içerisine ekleme
+                          document.body.appendChild(newNode);*/
+
+                          const listA = document.createElement("a");
+                          listA.setAttribute("href", "/uploads/" + response.data[i].pdfFile + "" );
+                          listA.setAttribute("class", "list-group-item list-group-item-action d-flex gap-3 py-3");
+                          listA.setAttribute("aria-current", "true");
+                          listA.setAttribute("name", "data-li");
+                          listA.setAttribute("target", "_blank");
+
+
+                          const listimg = document.createElement("img");
+                          listimg.setAttribute("src", "assets/images/pdf.png");
+                          listimg.setAttribute("style", "width: 48px; height:48px");
+
+                          const listPdiv = document.createElement("div");
+                          listPdiv.setAttribute("class", "d-flex gap-2 w-100 justify-content-between");
+
+                          const listCdiv = document.createElement("div");
+
+                          const listh6 = document.createElement("h6");
+                          listh6.setAttribute("class", "mb-0");
+
+                          const textNode = document.createTextNode(response.data[i].pdfFile);
+                          listh6.appendChild(textNode);
+
+                          listCdiv.appendChild(listh6);
+                          listPdiv.appendChild(listCdiv);
+                          listA.appendChild(listimg);
+                          listA.appendChild(listPdiv);
+
+                          listana.appendChild(listA);
+                        }
+                      }
+                    }
+                  } else {
+                    //aranılan kelimenin bulunduğu pdf'i element kutucuklarına ismini yazdırma
+                    for (i = 0; i < response.data.length; i++) {
+                      console.log(response.data[i].pdfFile);
+                      /*const newNode = document.createElement("li");
+                      newNode.setAttribute("name","data-li");
+                      const newAtag = document.createElement("a");
+                      newAtag.setAttribute("href","/uploads/" + response.data[i].pdfFile + "");
+                      newAtag.setAttribute("target", "_blank");
+                      
+                      newAtag.innerHTML = response.data[i].pdfFile;
+                      newNode.appendChild(newAtag); //a taganı çocuk elementi olarak li'nin içerisine ekleme
+                      document.body.appendChild(newNode);*/
+
+                      const listA = document.createElement("a");
+                          listA.setAttribute("href", "/uploads/" + response.data[i].pdfFile + "" );
+                          listA.setAttribute("class", "list-group-item list-group-item-action d-flex gap-3 py-3");
+                          listA.setAttribute("aria-current", "true");
+                          listA.setAttribute("name", "data-li");
+                          listA.setAttribute("target", "_blank");
+
+                          const listimg = document.createElement("img");
+                          listimg.setAttribute("src", "assets/images/pdf.png");
+                          listimg.setAttribute("style", "width: 48px; height:48px");
+
+                          const listPdiv = document.createElement("div");
+                          listPdiv.setAttribute("class", "d-flex gap-2 w-100 justify-content-between");
+
+                          const listCdiv = document.createElement("div");
+
+                          const listh6 = document.createElement("h6");
+                          listh6.setAttribute("class", "mb-0");
+
+                          const textNode = document.createTextNode(response.data[i].pdfFile);
+                          listh6.appendChild(textNode);
+
+                          listCdiv.appendChild(listh6);
+                          listPdiv.appendChild(listCdiv);
+                          listA.appendChild(listimg);
+                          listA.appendChild(listPdiv);
+
+                          listana.appendChild(listA);
+                    }
+                  }
+                })
+                .catch(function (error) {
+                  console.log(error);
+                });
+            }
+          </script>
+    </footer>
+</body>
+</html>

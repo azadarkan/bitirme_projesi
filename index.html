@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link href="assets/css/bootstrap.min.css" rel="stylesheet" />
+    <title>Document</title>
+    <style>
+.frame {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 400px;
+    height: 400px;
+    margin-top: -200px;
+    margin-left: -200px;
+    border-radius: 2px;
+    box-shadow: 4px 8px 16px 0 rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    background: linear-gradient(to top right, darkmagenta 0%, hotpink 100%);
+    color: #333;
+    font-family: "Open Sans", Helvetica, sans-serif;
+}
+.center {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 300px;
+    height: 260px;
+    border-radius: 3px;
+    box-shadow: 8px 10px 15px 0 rgba(0, 0, 0, 0.2);
+    background: #fff;
+    display: flex
+;
+    align-items: center;
+    justify-content: space-evenly;
+    flex-direction: column;
+}
+.title {
+    width: 100%;
+    height: 50px;
+    border-bottom: 1px solid #999;
+    text-align: center;
+}
+h1 {
+    font-size: 16px;
+    font-weight: 300;
+    color: #666;
+    font-size: 2em;
+    margin: .67em 0;
+    display: block;
+    font-size: 2em;
+    margin-block-start: 0.67em;
+    margin-block-end: 0.67em;
+    margin-inline-start: 0px;
+    margin-inline-end: 0px;
+    font-weight: bold;
+    unicode-bidi: isolate;
+}
+.dropzone {
+    width: 140px;
+    height: 80px;
+    border: 1px dashed #999;
+    border-radius: 3px;
+    text-align: center;
+}
+.upload-input {
+    position: relative;
+    top: -82px;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+}
+button, input{
+  font-family: sans-serif;
+    font-size: 100%;
+    line-height: 1.15;
+    margin: 0;
+}
+.btn {
+    display: block;
+    width: 140px;
+    height: 40px;
+    background: darkmagenta;
+    color: #fff;
+    border-radius: 3px;
+    border: 0;
+    box-shadow: 0 3px 0 0 hotpink;
+    transition: all 0.3s ease-in-out;
+    font-size: 14px;
+    margin-top: 30px;
+}
+img{
+  border-style: none;
+  overflow-clip-margin: content-box;
+  overflow: clip;
+}
+
+
+    </style>
+  </head>
+  <body>
+    <header class="py-3 mb-4 border-bottom">
+      <div class="container d-flex flex-wrap justify-content-center">
+        <a href="/arama" class="d-flex align-items-center mb-3 mb-lg-0 me-lg-auto text-dark text-decoration-none">
+          <svg class="bi me-2" width="40" height="32"><use xlink:href="#bootstrap"></use></svg>
+          <span class="fs-4">PDF arama</span>
+        </a>
+      </div>
+    </header>
+    <!--<a style="padding: 10px; border: 1px solid black" href="/arama">PDF arama</a>    -->
+    <div id="wip" style="display:none;position:fixed;top:0;left:0;width:100%;height: 100vh;z-index: 1000;background: #0000003d;">
+      <img src="assets/images/wip.gif" style="margin:auto"/>
+    </div>
+    <div id="success" style="display:none;position:fixed;top:0;left:0;width:100%;height: 100vh;z-index: 1000;background: #0000003d;">
+      <img src="assets/images/success.gif" style="margin:auto"/>
+    </div>
+    <div id="failed" style="display:none;position:fixed;top:0;left:0;width:100%;height: 100vh;z-index: 1000;background: #0000003d;">
+      <img src="assets/images/failed.gif" style="margin:auto"/>
+    </div>
+    <div class="frame">
+      <div class="center">
+        <div class="title">
+          <h1 style="font-size: 21px;">Yüklemek için dosyayı bırak</h1>
+        </div>
+        <form method="post" action="/dosya-al" enctype="multipart/form-data">
+          <div class="dropzone">
+            <img src="/assets/images/upload.png" class="upload-icon" style="margin: 25px 2px 2px 2px; width: 50px;">
+            <input id="pdf" type="file" name="dosya" class="upload-input">
+          </div>     
+          <button type="button" class="btn" name="uploadbutton" onclick="yukle()">Dosyayı yükle</button>
+        </form>
+      </div>
+    </div>
+    <footer>
+      <!--axios kütüphanesini kullanıcıya import ettik-->
+      <script src="assets/js/axios.min.js"></script>
+      <!--back end'e sorgu yapıp cevap alabildiğimiz js kütüphanesi, frond end ve back end arasında körü görevi görür. ajax-axios aynı işi yapar-->
+  <script>
+      function yukle() {
+        var formData = new FormData();
+        var pdfFile = document.querySelector('#pdf');
+        formData.append("dosya", pdfFile.files[0]);
+        //get ve post istemlerini karşılayan fonksiyon
+        axios.post("/dosya-al", formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          },
+          onUploadProgress: function (progressEvent) {
+            //console.log(progressEvent);
+            document.getElementById('wip').style.display = 'flex';
+          }
+        })
+        .then(function (response) {
+            document.getElementById('wip').style.display = 'none';
+            console.log(response.data);
+            
+            if(response.data == 'success') {
+              document.getElementById('success').style.display = 'flex'
+              setTimeout(() => {
+                document.getElementById('success').style.display = 'none';
+              }, 3000)
+            }else {
+              document.getElementById('failed').style.display = 'flex';
+            }
+
+          })
+          .catch(function (error) {
+            console.log(error);
+          });
+      }
+    </script>
+    </footer>
+
+
+
+
+  </body>
+</html>
